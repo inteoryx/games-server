@@ -66,7 +66,10 @@ def get_stats(r: Requests.GetStatsRequest) -> Responses.GetStatsResponse:
 
 if __name__ == "__main__":
     print("Starting server...")
-    papg.update_histogram()
+    try:
+        papg.update_histogram()
+    except ZeroDivisionError:
+        pass
     # allow cross origin requests
     uvicorn.run(app, host="0.0.0.0", port=8000)
     
