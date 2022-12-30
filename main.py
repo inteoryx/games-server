@@ -2,7 +2,6 @@
 games-server uses fastapi to provide the games service.
 """
 import fastapi
-from fastapi.middleware.cors import CORSMiddleware
 from fastapi import File, UploadFile
 from fastapi.responses import StreamingResponse
 from threading import Lock
@@ -17,22 +16,9 @@ import Responses
 app = fastapi.FastAPI()
 papg = PickAPresidentGame("pap.db")
 
-origins = [
-    "http://localhost:5000",
-    "localhost:5000",
-    
-]
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"]
-)
 
 
-@app.post("/getQuiz")
+@app.post("/s/getQuiz")
 def get_quiz(r: Requests.GetQuizRequest) -> Responses.GetQuizResponse:
     quiz = papg.get_quiz(r.player_id)
     resp = Responses.GetQuizResponse(
@@ -41,7 +27,7 @@ def get_quiz(r: Requests.GetQuizRequest) -> Responses.GetQuizResponse:
     return resp
 
 
-@app.post("/submitGuess")
+@app.post("/s/submitGuess")
 def submit_guess(r: Requests.SubmitGuessRequest) -> Responses.SubmitGuessResponse:
     correct = papg.guess(r.player_id, r.quiz_id, r.answer)
     resp = Responses.SubmitGuessResponse(
@@ -52,7 +38,7 @@ def submit_guess(r: Requests.SubmitGuessRequest) -> Responses.SubmitGuessRespons
     return resp
 
 
-@app.post("/getStats")
+@app.post("/s/getStats")
 def get_stats(r: Requests.GetStatsRequest) -> Responses.GetStatsResponse:
     correct, total = papg.stats(r.player_id)
     resp = Responses.GetStatsResponse(
