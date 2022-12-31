@@ -27,14 +27,14 @@ fi
 git pull
 
 # Start a Screen with name of port running main.py
-screen -dmS $main_port python3 main.py $main_port
+screen -dmS $alt_port python3 main.py $alt_port
 
 # Run tests here.  For now, placeholder - always pass.
 res=0
 
 # If tests pass, kill the alt_port screen and restart nginx.
 if [ $res -eq 0 ]; then
-    sed -i "s/$alt_port/$main_port/g" /etc/nginx/sites-enabled/nowplayok
+    sed -i "s/$main_port/$alt_port/g" /etc/nginx/sites-enabled/nowplayok
     service nginx restart
     screen -X -S $main_port quit
 fi

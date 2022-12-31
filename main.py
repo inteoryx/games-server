@@ -9,6 +9,7 @@ import uvicorn
 from PickAPresidentGame import PickAPresidentGame
 import os
 from fastapi.staticfiles import StaticFiles
+import sys
 
 import Requests
 import Responses
@@ -51,12 +52,13 @@ def get_stats(r: Requests.GetStatsRequest) -> Responses.GetStatsResponse:
 
 
 if __name__ == "__main__":
+    port_num = int(sys.argv[1])
     print("Starting server...")
     try:
         papg.update_histogram()
     except ZeroDivisionError:
         pass
     # allow cross origin requests
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    uvicorn.run(app, host="0.0.0.0", port=port_num)
     
     
