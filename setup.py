@@ -160,6 +160,8 @@ pres_list = """41,George H. W. Bush
 39,Jimmy Carter"""
 
 pres_list = pres_list.splitlines()
+pres_list.sort()
+fns.sort()
 
 presidents = []
 for i in range(len(fns)):
