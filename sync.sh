@@ -36,5 +36,5 @@ res=0
 if [ $res -eq 0 ]; then
     sed -i "s/$alt_port/$main_port/g" /etc/nginx/sites-enabled/nowplayok
     service nginx restart
-    screen -X -S $alt_port quit
+    screen -X -S $main_port quit
 fi
