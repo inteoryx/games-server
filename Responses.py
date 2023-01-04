@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 from typing import List
-from DataTypes import President, Quiz
+from DataTypes import President, Quiz, Stats
 
 class GetQuizResponse(BaseModel):
     quiz: Quiz
@@ -12,7 +12,6 @@ class SubmitGuessResponse(BaseModel):
 
 
 class GetStatsResponse(BaseModel):
-    correct: int
-    incorrect: int
-    total: int
+    last_ten: Stats
+    all_time: Stats
     histogram: List[int]

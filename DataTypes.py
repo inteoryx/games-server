@@ -11,3 +11,8 @@ class Quiz(pydantic.BaseModel):
     id: int
     quote: str
     choices: List[President]
+
+
+class Stats(pydantic.BaseModel):
+    correct: int
+    incorrect: int

@@ -2,9 +2,10 @@ import sqlalchemy
 from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker
 import Tables
-from DataTypes import Quiz, President
+from DataTypes import Quiz, President, Stats
 from PlayerCache import PlayerCache
 import random
+from typing import Tuple
 
 class PickAPresidentGame:
 
@@ -86,7 +87,6 @@ class PickAPresidentGame:
 
         quiz = self.quiz_map[quiz_id]
         correct = answer == quiz.correct_answer
-        print(answer, quiz.correct_answer, correct)
 
         sess = self.session_maker()
         qr = Tables.QuizRecord(
@@ -106,17 +106,34 @@ class PickAPresidentGame:
         return self.all_presidents[quiz.correct_answer]
 
 
-    def stats(self, player, last_n=10):
+    def stats(
+        self, 
+        player: int, 
+        last_n: int = 10
+    ) -> Tuple[Stats, Stats]:
         """
-        Return a tuple (correct, total) for the last n quizzes.
+        Return a Tuple of Stats objects for last_n and all time for the player.
         """
         
         sess = self.session_maker()
-        quiz_history = sess.query(Tables.QuizRecord).filter(Tables.QuizRecord.player_id == player).order_by(Tables.QuizRecord.time.desc()).limit(last_n).all()
         
+        # get the last_n records, right or wrong.
+        last_n_total = sess.query(Tables.QuizRecord).filter(Tables.QuizRecord.player_id == player).order_by(Tables.QuizRecord.time.desc()).limit(last_n)
+        last_n_correct = sum([ 1 for qr in last_n_total if qr.correct ])
+        last_n_total = last_n_total.count()
+
+        # get all records, right or wrong.
+        all_time_total = sess.query(Tables.QuizRecord).filter(Tables.QuizRecord.player_id == player)
+        all_time_correct = sum([ 1 for qr in all_time_total if qr.correct ])
+        all_time_total = all_time_total.count()
+
         sess.close()
 
-        return (sum([ 1 for q in quiz_history if q.correct ]), len(quiz_history))
+        last_n_stats = Stats(correct=last_n_correct, incorrect=last_n_total - last_n_correct)
+        all_time_stats = Stats(correct=all_time_correct, incorrect=all_time_total - all_time_correct)
+
+        return last_n_stats, all_time_stats
+
 
     def update_histogram(self):
         """
@@ -130,8 +147,8 @@ class PickAPresidentGame:
         new_histogram = [0] * 11
 
         for player in all_players:
-            correct, total = self.stats(player)
-            bucket = int(correct / total * 10)
+            lastn, alltime = self.stats(player)
+            bucket = int(lastn.correct / (lastn.correct + lastn.incorrect) * 10)
             new_histogram[bucket] += 1
 
 
